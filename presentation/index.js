@@ -1,6 +1,7 @@
 // Import React
 import React from "react";
 
+
 // Import Spectacle Core tags
 import {
   Appear,
@@ -22,6 +23,19 @@ import {
   Text
 } from "spectacle";
 
+import Playground from "component-playground";
+import CodeSlide from 'spectacle-code-slide';
+
+import {
+  observable,
+  extendObservable,
+  autorun
+} from "mobx";
+
+import {
+  observer
+} from "mobx-react";
+
 // Import image preloader util
 import preloader from "spectacle/lib/utils/preloader";
 
@@ -37,31 +51,330 @@ require("spectacle/lib/themes/default/index.css");
 
 
 const images = {
-  city: require("../assets/city.jpg"),
-  kat: require("../assets/kat.png"),
-  logo: require("../assets/formidable-logo.svg"),
-  markdown: require("../assets/markdown.png")
+  mobx: require("../assets/mobx.png"),
 };
 
 preloader(images);
 
 const theme = createTheme({
-  primary: "#ff4081"
+  primary: "#fff",
+  secondary: "#fff",
+  tertiary: "#fff",
+  quartenary: "#fff"
 });
+
+console.dir(theme)
+theme.screen.global.body.background = "black";
+theme.screen.global.body.color = "white";
+
+function trim(text) {
+  return text.replace(/^\s*/, "").replace(/\s*$/, "");
+}
+
+class Code extends React.Component {
+  render() {
+    return (
+      this.props.live === true
+      ? (<div style={{textAlign: 'left'}}>
+        <Playground codeText={trim(this.props.code)} scope={{ React, observable, extendObservable, autorun, observer }} es6Preview={true} noRender={false}/>
+      </div>)
+      : (<CodePane
+          textSize="1em"
+          lang="jsx"
+          source={trim(this.props.code)}
+          margin="20px auto"
+        />)
+    )
+  }
+}
 
 export default class Presentation extends React.Component {
   render() {
     return (
       <Spectacle theme={theme}>
         <Deck transition={["zoom", "slide"]} transitionDuration={500}>
-          <Slide transition={["zoom"]} bgColor="primary">
-            <Heading size={1} fit caps lineHeight={1} textColor="black">
+          <Slide>
+            <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="293px"/>
+            <Heading size={1} fit caps lineHeight={1}>
+              MobX
+            </Heading>
+            <Heading size={1} fit caps>
+              Boilerplate free state management
+            </Heading>
+            @mweststrate - Michel Weststrate
+          </Slide>
+
+          <Slide>
+            Robben
+          </Slide>
+
+          <Slide fill>
+            <Heading>State..</Heading>
+            <Code code={
+`
+var firstname = "michel"
+var lastname = "weststrate"
+`           } />
+          </Slide>
+
+          <Slide>
+            <Heading>Apps</Heading>
+            1. Modify state
+            2. Transform state in something useful
+            <Code code={
+`
+var firstname = "michel"
+var lastname = "weststrate"
+
+function fullname () {
+  return firstname + " " + lastname
+}
+
+React.render(
+  <div>{fullname()},
+  mountNode
+)
+`           } />
+          </Slide>
+
+          <Slide>
+            <Heading>The problem</Heading>
+            Rendering is a one time event. Values are copied
+          </Slide>
+
+          <Slide>
+            <Heading>What we need</Heading>
+            <Code code={
+`
+var firstname = "michel"
+var lastname = "weststrate"
+
+function fullname () {
+  return () => firstname + " " + () => lastname
+}
+
+React.render(
+  <div>{() => fullname()},
+  mountNode
+)
+`           } />
+            Expressions instead of values
+            Relations instead of data copies
+          </Slide>
+
+          <Slide>
+            <Heading>The problem</Heading>
+            <Code code={
+`
+var firstname = "michel"
+var lastname = "weststrate"
+
+function fullname () {
+  return () => firstname + " " + () => lastname
+}
+
+React.render(
+  <div>{() => fullname()},
+  mountNode
+)
+`           } />
+            1. When to re-evaluate fullname?
+            2. When to re-render?
+          </Slide>
+
+          <Slide>
+            Answer: observe all the things!
+            And rerun whenever something relevant changes
+          </Slide>
+
+          <Slide>
+            1. Make all state observable.
+            2. Track which thunk uses what
+          </Slide>
+
+          <Slide>
+            <Code code={
+`
+var firstname = observable("michel")
+var lastname = observable("weststrate")
+
+function fullname = computed(() => {
+  return firstname.get() + " " + lastname.get()
+})
+
+autorun(() => {
+  React.render(
+    <div>{fullname.get()}</div>,
+    mountNode
+  )
+}
+
+firstname.set("Veria")
+`           } />
+          </Slide>
+
+          <Slide>
+            <Heading>WTF just happened?</Heading>
+            autorun observes fullname
+            fullname observes firstname and lastname
+          </Slide>
+
+          <Slide>
+            It's magic! Unicorn
+          </Slide>
+
+          <Slide>
+
+          </Slide>
+
+          <Slide>
+            Computed and autorun run their thunks, track which observables they access, and start observing those observables.
+            * Synchronously (no digest loop)
+            * No off-stack debugging
+            * Predictable
+            * Glitchfree
+          </Slide>
+
+          <Slide>
+            Dynamic dependencies
+            <Code code={
+`
+var firstname = observable("michel")
+var lastname = observable("weststrate")
+
+function fullname = computed(() => {
+  return firstname.get() + " " + lastname.get()
+})
+
+autorun(() => {
+  React.render(
+    <div>{firstname.get() === 42 ? "Universe!" : fullname.get()}</div>,
+    mountNode
+  )
+}
+
+firstname.set(42)
+`           } />
+          </Slide>
+
+          <Slide>
+            Q: When does MobX run stuff?
+            A: Directly! Always! Synchronously!
+          </Slide>
+
+          <Slide>
+            Q: Isn't that a bit too much?
+            A: (trans)actions bundle changes
+               ... But derivations are still consistent if used
+          </Slide>
+
+          <Slide>
+            Q:When does MobX stop running stuff?
+            A: If the computation is not in use anymore (derivation)
+            A: .. Unless it is a side effect (reaction)
+          </Slide>
+
+          <Slide>
+            All cool. It just doesn't look like MobX.
+          </Slide>
+
+          <Slide>
+            Objects & defineProperty
+            <Code code={
+`
+var my = observable({
+  firstname: "michel",
+  lastname: "weststrate",
+  fullname: function() {
+    return this.firstname + " " + this.lastname
+  }
+})
+
+React.render(
+  observer(() => <div>{my.fullname}</div>),
+  mountNode
+)
+
+my.firstname = "Veria"
+`           } />
+          </Slide>
+
+          <Slide>
+            Constructor functions
+            <Code code={
+`
+function Person() {
+  extendObservable(this, {
+    firstname: "michel",
+    lastname: "weststrate",
+    fullname: function() {
+      return this.firstname + " " + this.lastname
+    }
+  }
+)
+
+var my = new Person()
+
+React.render(
+  observer(() => <div>{my.fullname}</div>),
+  mountNode
+)
+
+my.firstname = "Veria"
+`           } />
+          </Slide>
+
+          <Slide>
+            ESNext!
+            <Code code={
+`
+class Person {
+  @observable firstname = "michel";
+  @observable lastname = "weststrate";
+  @computed get fullname() {
+      return this.firstname + " " + this.lastname
+  }
+}
+
+var my = new Person()
+
+React.render(
+  observer(() => <div>{my.fullname}</div>),
+  mountNode
+)
+
+my.firstname = "Veria"
+`           } />
+          </Slide>
+
+          <Slide>
+            Q: Nice. Where is this good for?
+            A: Focus on the essence manage your state.
+            The rest can be derived from that. MobX makes sure that happens.
+          </Slide>
+
+
+
+
+        </Deck>
+      </Spectacle>
+    )
+  }
+}
+
+class Presentation_ extends React.Component {
+  render() {
+    return (
+      <Spectacle theme={theme}>
+        <Deck transition={["zoom", "slide"]} transitionDuration={500}>
+          <Slide transition={["zoom"]}>
+            <Heading size={1} fit caps lineHeight={1}>
               Spectacle
             </Heading>
             <Heading size={1} fit caps>
               A ReactJS Presentation Library
             </Heading>
-            <Heading size={1} fit caps textColor="black">
+            <Heading size={1} fit caps>
               Where You Can Write Your Decks In JSX
             </Heading>
             <Link href="https://github.com/FormidableLabs/spectacle">
@@ -69,12 +382,14 @@ export default class Presentation extends React.Component {
             </Link>
             <Text textSize="1.5em" margin="20px 0px 0px" bold>Hit Your Right Arrow To Begin!</Text>
           </Slide>
+
           <Slide transition={["slide"]} bgColor="black" notes="You can even put notes on your slide. How awesome is that?">
             <Image src={images.kat.replace("/", "")} margin="0px auto 40px" height="293px"/>
             <Heading size={2} caps fit textColor="primary" textFont="primary">
               Wait what?
             </Heading>
           </Slide>
+
           <Slide transition={["zoom", "fade"]} bgColor="primary" notes="<ul><li>talk about that</li><li>and that</li></ul>">
             <CodePane
               lang="jsx"
