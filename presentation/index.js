@@ -88,6 +88,17 @@ class Code extends React.Component {
   }
 }
 
+function toRanges(nrs) {
+  const res = nrs.map((l, i) => {
+    if (i > 1 && l < nrs[i -1]) {
+      return { loc: [nrs[i -2], l ]}
+    } else {
+      return { loc: [nrs[i -1] || 0, l ]};
+    }
+  });
+  return res;
+}
+
 export default class Presentation extends React.Component {
   render() {
     return (
@@ -96,20 +107,23 @@ export default class Presentation extends React.Component {
           <Slide>
             <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="293px"/>
             <Heading size={1} fit caps lineHeight={1}>
-              MobX
+              Magic MobX
             </Heading>
             <Heading size={1} fit caps>
-              Boilerplate free state management
+              Become a wizard in 30 minutes
             </Heading>
             @mweststrate - Michel Weststrate
           </Slide>
 
           <Slide>
-            Robben
+            That escalated quickly..
+            { /* wrong talk prepared */ }
           </Slide>
 
-          <Slide fill>
-            <Heading>State..</Heading>
+          <Slide>
+            <Heading>Applications</Heading>
+            1. Modify state
+            2. Transform state in something useful
             <Code code={
 `
 var firstname = "michel"
@@ -117,10 +131,8 @@ var lastname = "weststrate"
 `           } />
           </Slide>
 
-          <Slide>
-            <Heading>Apps</Heading>
-            1. Modify state
-            2. Transform state in something useful
+          <Slide fill>
+            <Heading>UI = view(state)</Heading>
             <Code code={
 `
 var firstname = "michel"
@@ -131,24 +143,36 @@ function fullname () {
 }
 
 React.render(
-  <div>{fullname()},
+  <div>{fullname()}</div>,
   mountNode
 )
 `           } />
           </Slide>
 
+
           <Slide>
-            <Heading>The problem</Heading>
-            Rendering is a one time event. Values are copied
+            <Heading>The Problem</Heading>
+            Rendering is a one time event. Values are just copied around.
+<Code code={
+`
+function fullname () {
+  return firstname + " " + lastname
+}
+
+React.render(
+  <div>{fullname()}</div>,
+  mountNode
+)
+
+firstname = "Veria" // <- ehhh..?
+`           } />
+            Connection with the 'source' is lost..
           </Slide>
 
           <Slide>
-            <Heading>What we need</Heading>
+            <Heading>What we intuitively mean</Heading>
             <Code code={
 `
-var firstname = "michel"
-var lastname = "weststrate"
-
 function fullname () {
   return () => firstname + " " + () => lastname
 }
@@ -159,16 +183,28 @@ React.render(
 )
 `           } />
             Expressions instead of values
-            Relations instead of data copies
+            Relations instead of data copies.
+            Thunks FTW!
           </Slide>
+
+          <Slide>
+            Is it possible?
+          </Slide>
+
+          <Slide>            
+            Can a Dutch guy turn a German team into champions?
+          </Slide>
+
+          <Slide>
+            Robben.
+            MobX fan.
+          </Slide>
+
 
           <Slide>
             <Heading>The problem</Heading>
             <Code code={
 `
-var firstname = "michel"
-var lastname = "weststrate"
-
 function fullname () {
   return () => firstname + " " + () => lastname
 }
@@ -195,10 +231,10 @@ React.render(
           <Slide>
             <Code code={
 `
-var firstname = observable("michel")
-var lastname = observable("weststrate")
+const firstname = observable("michel")
+const lastname = observable("weststrate")
 
-function fullname = computed(() => {
+const fullname = computed(() => {
   return firstname.get() + " " + lastname.get()
 })
 
@@ -214,18 +250,29 @@ firstname.set("Veria")
           </Slide>
 
           <Slide>
+          http://jsbin.com/teleferoje/1/edit?js,console,output
+          </Slide>
+
+          <Slide>
             <Heading>WTF just happened?</Heading>
             autorun observes fullname
             fullname observes firstname and lastname
           </Slide>
 
           <Slide>
-            It's magic! Unicorn
+            It's magic!
           </Slide>
 
-          <Slide>
-
-          </Slide>
+          <CodeSlide
+            transition={[]}
+            lang="jsx"
+            code={require("raw!../assets/pseudo.example")}
+            ranges={toRanges([
+              4, 24, 7, 14, 18, 22, 25,
+              42, 27, 31, 38, 34, 35, 36, 37, 39, 42,
+              49, 44, 47, 50, 53, 57, 61, 64
+            ])}
+          />
 
           <Slide>
             Computed and autorun run their thunks, track which observables they access, and start observing those observables.
@@ -236,13 +283,21 @@ firstname.set("Veria")
           </Slide>
 
           <Slide>
+            MobX:
+            * dedupes and diffs depencies
+            * makes sure computed values stop observing if nobody observes them
+            Plaatje
+          </Slide>
+
+
+          <Slide>
             Dynamic dependencies
             <Code code={
 `
-var firstname = observable("michel")
-var lastname = observable("weststrate")
+const firstname = observable("michel")
+const lastname = observable("weststrate")
 
-function fullname = computed(() => {
+const fullname = computed(() => {
   return firstname.get() + " " + lastname.get()
 })
 
@@ -270,8 +325,12 @@ firstname.set(42)
 
           <Slide>
             Q:When does MobX stop running stuff?
-            A: If the computation is not in use anymore (derivation)
-            A: .. Unless it is a side effect (reaction)
+            A: If the computation is not in use anymore (computed)
+            A: .. Unless it has a side effects (autorun)
+          </Slide>
+
+          <Slide>
+            Conceptual overview
           </Slide>
 
           <Slide>
@@ -279,10 +338,9 @@ firstname.set(42)
           </Slide>
 
           <Slide>
-            Objects & defineProperty
             <Code code={
 `
-var my = observable({
+const my = observable({
   firstname: "michel",
   lastname: "weststrate",
   fullname: function() {
@@ -300,6 +358,27 @@ my.firstname = "Veria"
           </Slide>
 
           <Slide>
+            Object.defineProperty
+            <Code code={
+`
+function observable(object) {
+  return extendObservable(object, object)
+}
+
+function extendObservable(target, source) {
+  source.keys.forEach(key => {
+    const value = observable(source[key])
+    Object.defineProperty(target, key, {
+      set: value.set,
+      get: value.get
+    })
+  })
+}
+`           } />
+          </Slide>
+
+
+          <Slide>
             Constructor functions
             <Code code={
 `
@@ -313,7 +392,7 @@ function Person() {
   }
 )
 
-var my = new Person()
+const my = new Person()
 
 React.render(
   observer(() => <div>{my.fullname}</div>),
@@ -336,7 +415,7 @@ class Person {
   }
 }
 
-var my = new Person()
+const my = new Person()
 
 React.render(
   observer(() => <div>{my.fullname}</div>),
@@ -353,8 +432,31 @@ my.firstname = "Veria"
             The rest can be derived from that. MobX makes sure that happens.
           </Slide>
 
+          <CodeSlide
+            transition={[]}
+            lang="jsx"
+            code={require("raw!../assets/todo.example")}
+            ranges={toRanges([
+              9,
+              16,
+              30,
+              21,
+              26,
+              31,
+              40,
+              50
+            ])}
+          />
 
+          <Slide>
+            Ok, what does something real look like:
+            http://jsbin.com/kupisuzode/1/edit?js,console,output
+          </Slide>
 
+          <Slide>
+            You are a wizard now! Ready to enchant your PM!
+            https://github.io/mobxjs/mobx
+          </Slide>
 
         </Deck>
       </Spectacle>

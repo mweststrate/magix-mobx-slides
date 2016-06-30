@@ -1,0 +1,63 @@
+"use strict"
+
+const stack = []
+
+function observable(initialValue) {
+  let value = initialValue
+  const observers = []
+  return {
+    subscribe: function(observer) {
+      observers.push(observer)
+    },
+    unsubscribe: function(observer) {
+      observers.splice(observers.indexOf(observer), 1)
+    },
+    set: function(newValue) {
+      value = newValue
+      observers.forEach(o => o.run())
+    },
+    get: function() {
+      stack[stack.length -1].addDependency(this)
+      return value
+    }
+  }
+}
+
+function autorun(thunk) {
+  const observing = []
+  const reaction = {
+    addDependency: (observable) => {
+      observing.push(observable)
+    },
+    run: function() {
+      stack.push(this)
+      observing.splice(0).forEach(o => o.unsubscribe(this))
+      thunk()
+      observing.forEach(o => o.subscribe(this))
+      stack.pop(this)
+    }
+  }
+  reaction.run()
+}
+
+function computed(thunk) {
+  var current = observable(undefined)
+  autorun(() => {
+    current.set(thunk())
+  })
+  return current
+}
+
+const firstname = observable("michel")
+const lastname = observable("weststrate")
+
+const fullname = computed(() => {
+  return firstname.get() + " " + lastname.get()
+})
+
+autorun(() => {
+  console.log(fullname.get())
+})
+
+firstname.set("Veria")
+lastname.set("& Noa")
