@@ -9,6 +9,7 @@ import {
   Cite,
   CodePane,
   Deck,
+  Fit,
   Fill,
   Heading,
   Image,
@@ -52,6 +53,18 @@ require("spectacle/lib/themes/default/index.css");
 
 const images = {
   mobx: require("../assets/mobx.png"),
+  observables: require("../assets/observables.png"),
+  congrats: require("../assets/congrats.gif"),
+  escalated: require("../assets/escalated.gif"),
+  fly: require("../assets/fly.gif"),
+  magic: require("../assets/magic.gif"),
+  harry: require("../assets/harry.gif"),
+  harry2: require("../assets/harry2.gif"),
+  robben: require("../assets/ruhrjs.jpg"),
+  flow_notext: require("../assets/flow_notext.png"),
+  observeall: require("../assets/observeall.jpg"),
+  glitch: require("../assets/glitch.png"),
+  
 };
 
 preloader(images);
@@ -110,29 +123,52 @@ export default class Presentation extends React.Component {
               Magic MobX
             </Heading>
             <Heading size={1} fit caps>
-              Become a wizard in 30 minutes
+              Become a reactive wizard in 30 minutes
             </Heading>
-            @mweststrate - Michel Weststrate
+            <Text textColor="white">
+              @mweststrate - Michel Weststrate
+            </Text>
           </Slide>
 
           <Slide>
-            That escalated quickly..
-            { /* wrong talk prepared */ }
+            <Image src={images.escalated.replace("/", "")} margin="0px auto 40px" width="100%"/>
           </Slide>
+
+          <Slide>
+            <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="293px"/>
+            <Heading size={1} fit caps lineHeight={1}>
+              Magic MobX
+            </Heading>
+            Tweet
+            <Heading size={1} fit caps>
+              What problem does Transparent Reactive Programming solve?
+            </Heading>
+            <Heading size={1} fit caps>
+              How does MobX know what to do?
+            </Heading>
+            <Heading size={1} fit caps>
+              Why is MobX code so simple and fast?
+            </Heading>
+          </Slide>
+
 
           <Slide>
             <Heading>Applications</Heading>
-            1. Modify state
-            2. Transform state in something useful
-            <Code code={
-`
+            <List>
+              <ListItem>Modify state</ListItem>
+              <ListItem>Transform state in something storable or viewable</ListItem>
+            </List>
+            <Fill>
+                <Code code={
+    `
 var firstname = "michel"
-var lastname = "weststrate"
-`           } />
+var lastname  = "weststrate"
+    `           } />
+            </Fill>
           </Slide>
 
           <Slide fill>
-            <Heading>UI = view(state)</Heading>
+            <Heading>UI = view(state) ?</Heading>
             <Code code={
 `
 var firstname = "michel"
@@ -149,28 +185,46 @@ React.render(
 `           } />
           </Slide>
 
-
-          <Slide>
+          <Slide align="flex-start">
             <Heading>The Problem</Heading>
-            Rendering is a one time event. Values are just copied around.
+            
 <Code code={
 `
 function fullname () {
-  return firstname + " " + lastname
+  return "michel" + " " + "weststrate"
 }
 
 React.render(
-  <div>{fullname()}</div>,
+  <div>{"michel weststrate"}</div>,
+  mountNode
+)
+`           } />
+          </Slide>
+
+          <Slide align="flex-start" transitionDuration={0}>
+            <Heading>The Problem</Heading>
+            
+<Code code={
+`
+function fullname () {
+  return "michel" + " " + "weststrate"
+}
+
+React.render(
+  <div>{"michel weststrate"}</div>,
   mountNode
 )
 
 firstname = "Veria" // <- ehhh..?
 `           } />
-            Connection with the 'source' is lost..
+            <List>
+              <Appear><ListItem>Values are just copied around.</ListItem></Appear>
+              <Appear><ListItem>Connection with the 'source' is lost..</ListItem></Appear>
+            </List>
           </Slide>
 
-          <Slide>
-            <Heading>What we intuitively mean</Heading>
+          <Slide align="flex-start">
+            <Heading>What we mean</Heading>
             <Code code={
 `
 function fullname () {
@@ -182,9 +236,11 @@ React.render(
   mountNode
 )
 `           } />
-            Expressions instead of values
-            Relations instead of data copies.
-            Thunks FTW!
+            <List>
+              <Appear><ListItem>Relations instead of copied values</ListItem></Appear>
+              <Appear><ListItem>Pass thunks instead of values</ListItem></Appear>
+              <Appear><ListItem>Deferred evalutation</ListItem></Appear>
+            </List>
           </Slide>
 
           <Slide>
@@ -196,13 +252,12 @@ React.render(
           </Slide>
 
           <Slide>
-            Robben.
-            MobX fan.
+            <Image src={images.robben.replace("/", "")} margin="0px auto 40px"/>
           </Slide>
 
 
-          <Slide>
-            <Heading>The problem</Heading>
+          <Slide align="flex-start">
+            <Heading>Difficult!</Heading>
             <Code code={
 `
 function fullname () {
@@ -214,21 +269,62 @@ React.render(
   mountNode
 )
 `           } />
-            1. When to re-evaluate fullname?
-            2. When to re-render?
+            <List>
+              <Appear><ListItem>When to re-evaluate fullname?</ListItem></Appear>
+              <Appear><ListItem>When to render?</ListItem></Appear>
+              <Appear><ListItem>When to stop re-evaluating</ListItem></Appear>
+            </List>
           </Slide>
 
           <Slide>
-            Answer: observe all the things!
-            And rerun whenever something relevant changes
+            <Heading>We Need To..</Heading>
+            <List>
+              <Appear><ListItem>1. Make state observable</ListItem></Appear>
+              <Appear><ListItem>2. Track the dependencies of thunks</ListItem></Appear>
+              <Appear><ListItem>3. Rerun thunks (only) when needed</ListItem></Appear>
+            </List>
+            <Appear>
+              <Image src={images.observeall.replace("/", "")} margin="0px auto 40px"/>
+            </Appear>
           </Slide>
 
           <Slide>
-            1. Make all state observable.
-            2. Track which thunk uses what
+            <Heading>Applications</Heading>
+            <List>
+              <ListItem>Modify state</ListItem>
+              <ListItem>Transform state in something storable or viewable</ListItem>
+              <Appear><ListItem>MobX: keeps transformations consistens with modifycations
+                <List>
+<Appear><ListItem>At all times</ListItem></Appear>
+<Appear><ListItem>With the minimum amount of recomputations possible</ListItem></Appear>
+                </List>
+              
+              </ListItem></Appear>
+            </List>
           </Slide>
 
-          <Slide>
+          <Slide align="flex-start">
+            <Heading>MobX</Heading>
+            <List>
+              <Appear><ListItem>observable: makes values observable</ListItem></Appear>
+              <Appear><ListItem>computed
+                <List>
+                  <ListItem>Tracks a thunk, runs when needed</ListItem>
+                  <ListItem>..But only when being observed</ListItem>
+                  <ListItem>Produces values</ListItem>
+                </List>
+              </ListItem></Appear>
+              <Appear><ListItem>autorun
+                <List>
+                  <ListItem>Tracks a thunk, runs when needed</ListItem>
+                  <ListItem>Reruns when needed</ListItem>
+                  <ListItem>Produces effects (aka. reactions)</ListItem>
+                </List>
+              </ListItem></Appear>
+            </List>
+          </Slide>
+
+          <Slide align="flex-start">
             <Code code={
 `
 const firstname = observable("michel")
@@ -250,60 +346,53 @@ firstname.set("Veria")
           </Slide>
 
           <Slide>
-          http://jsbin.com/teleferoje/1/edit?js,console,output
+          <Link textColor="white" fit href="http://jsbin.com/teleferoje/1/edit?js,console,output">Demo</Link>
           </Slide>
 
           <Slide>
             <Heading>WTF just happened?</Heading>
-            autorun observes fullname
-            fullname observes firstname and lastname
+            <Image src={images.magic.replace("/", "")} margin="0px auto 40px"/>
+            <List>
+              <ListItem>autorun thunk observes fullname</ListItem>
+              <ListItem>fullname thunk observes firstname and lastname</ListItem>
+              <ListItem>firstname changed</ListItem>
+              <ListItem>fullname recomputed</ListItem>
+              <ListItem>autorun ran again</ListItem>
+            </List>
           </Slide>
 
-          <Slide>
-            It's magic!
-          </Slide>
-
-          <CodeSlide
+          <CodeSlide align="flex-start center" fill
             transition={[]}
             lang="jsx"
             code={require("raw!../assets/pseudo.example")}
             ranges={toRanges([
-              4, 24, 7, 14, 18, 22, 25,
-              42, 27, 31, 38, 34, 35, 36, 37, 39, 42,
-              49, 44, 47, 50, 53, 57, 61, 64
+              4, 27, 7, 16, 20, 25, 28,
+              46, 30, 34, 38, 43, 36, 38, 39, 41, 42, 46,
+              47, 54, 58, 66, 69
             ])}
           />
 
           <Slide>
-            Computed and autorun run their thunks, track which observables they access, and start observing those observables.
-            * Synchronously (no digest loop)
-            * No off-stack debugging
-            * Predictable
-            * Glitchfree
+            <Heading>Too magical?</Heading>
+            <List>
+              <Appear><ListItem>Everything runs synchronous</ListItem></Appear>
+              <Appear><ListItem>Dependency tree is analyzed</ListItem></Appear>
+              <Appear><ListItem>No, double runs, no unneeded runs, glitch free</ListItem></Appear>
+              <Appear><ListItem>Dependency tree is dynamic</ListItem></Appear>
+              <Appear><ListItem>Unobserved computations are suspended</ListItem></Appear>
+            </List>
           </Slide>
 
           <Slide>
-            MobX:
-            * dedupes and diffs depencies
-            * makes sure computed values stop observing if nobody observes them
-            Plaatje
-          </Slide>
-
-
-          <Slide>
-            Dynamic dependencies
             <Code code={
 `
-const firstname = observable("michel")
-const lastname = observable("weststrate")
-
-const fullname = computed(() => {
-  return firstname.get() + " " + lastname.get()
-})
-
 autorun(() => {
   React.render(
-    <div>{firstname.get() === 42 ? "Universe!" : fullname.get()}</div>,
+    <div>{
+      firstname.get() === 42 
+        ? "Universe!" 
+        : fullname.get()
+    }</div>,
     mountNode
   )
 }
@@ -313,28 +402,22 @@ firstname.set(42)
           </Slide>
 
           <Slide>
-            Q: When does MobX run stuff?
-            A: Directly! Always! Synchronously!
+            https://docs.google.com/presentation/d/1d54mSxF0VOAFlsUGM8eonZDs9gZecTOz1ErSbnydChQ/edit
           </Slide>
 
           <Slide>
-            Q: Isn't that a bit too much?
-            A: (trans)actions bundle changes
-               ... But derivations are still consistent if used
-          </Slide>
-
-          <Slide>
-            Q:When does MobX stop running stuff?
-            A: If the computation is not in use anymore (computed)
-            A: .. Unless it has a side effects (autorun)
+            <Heading>Mind Blown</Heading>
+            <Appear><Image src={images.harry.replace("/", "")} margin="0px auto 40px"/></Appear>
+            Magic? Just a bunch of counters and two collections
           </Slide>
 
           <Slide>
             Conceptual overview
+            <Image src={images.flow_notext.replace("/", "")} margin="0px auto 40px"/>
           </Slide>
 
           <Slide>
-            All cool. It just doesn't look like MobX.
+            All cool. It just doesn't look like MobX yet.
           </Slide>
 
           <Slide>
@@ -356,6 +439,48 @@ React.render(
 my.firstname = "Veria"
 `           } />
           </Slide>
+
+
+          <Slide>
+            observer
+            <Code code={
+`
+class MyComponent extends Component {
+  componentDidMount() {
+    this.disposer = autorun(() => {
+      this.render()
+    }
+  },
+  componentWillUnmount() {
+    this.disposer();
+  },
+  render() {
+    /// stuff
+  }
+}
+`           } />
+          </Slide>
+
+         <Slide>
+            <Code code={
+`
+const my = observable({
+  firstname: "michel",
+  lastname: "weststrate",
+  fullname: function() {
+    return this.firstname + " " + this.lastname
+  }
+})
+
+React.render(
+  observer(() => <div>{my.fullname}</div>),
+  mountNode
+)
+
+my.firstname = "Veria"
+`           } />
+          </Slide>
+
 
           <Slide>
             Object.defineProperty
@@ -389,7 +514,7 @@ function Person() {
     fullname: function() {
       return this.firstname + " " + this.lastname
     }
-  }
+  })
 )
 
 const my = new Person()
@@ -427,9 +552,7 @@ my.firstname = "Veria"
           </Slide>
 
           <Slide>
-            Q: Nice. Where is this good for?
-            A: Focus on the essence manage your state.
-            The rest can be derived from that. MobX makes sure that happens.
+            Examples
           </Slide>
 
           <CodeSlide
@@ -437,25 +560,37 @@ my.firstname = "Veria"
             lang="jsx"
             code={require("raw!../assets/todo.example")}
             ranges={toRanges([
-              9,
-              16,
-              30,
-              21,
+              13,
+              23,
+              36,
               26,
-              31,
-              40,
-              50
+              32,
+              37,
+              47,
+              49,
+              54,
+              60
             ])}
           />
 
           <Slide>
             Ok, what does something real look like:
-            http://jsbin.com/kupisuzode/1/edit?js,console,output
+            http://jsbin.com/wisexeqexe/edit?js,console,output
           </Slide>
 
           <Slide>
+            Mendix Demo
+          </Slide>
+
+          <Slide>
+            <Image src={images.congrats.replace("/", "")} margin="0px auto 40px"/>
+          
             You are a wizard now! Ready to enchant your PM!
             https://github.io/mobxjs/mobx
+            Egghead MobX fundamentals course coming soon!
+            Swag
+            @mweststrate
+
           </Slide>
 
         </Deck>

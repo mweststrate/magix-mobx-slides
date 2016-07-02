@@ -1,0 +1,58 @@
+"use strict"
+const stack = []
+
+
+function observable(initialValue) {
+  let value = initialValue
+  const observers = []
+  return {
+    subscribe: function(observer) {
+      observers.push(observer)
+    },
+    unsubscribe: function(observer) {
+      observers.splice(observers.indexOf(observer), 1)
+    },
+    set: function(newValue) {
+      observers.forEach(o => o.willChange())
+      value = newValue
+      observers.forEach(o => o.didChange())
+    },
+    get: function() {
+      stack[stack.length -1].addDependency(this)
+      return value
+    }
+  }
+}
+
+function autorun(thunk) {
+  const observing = []
+  let changedDeps = 0
+  const reaction = {
+    addDependency: (observable) => {
+      observing.push(observable)
+    },
+    run: function() {
+      stack.push(this)
+      observing.splice(0).forEach(o => o.unsubscribe(this))
+      thunk()
+      observing.forEach(o => o.subscribe(this))
+      stack.pop(this)
+    },
+    willChange: function() {
+      changedDeps++
+    },
+    didChange: function() {
+      if (--changedDeps === 0)
+        this.run()
+    }
+  }
+  reaction.run()
+}
+
+function computed(thunk) {
+  var current = observable(undefined)
+  autorun(() => {
+    current.set(thunk())
+  })
+  return current
+}

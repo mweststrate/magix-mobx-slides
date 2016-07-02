@@ -1,50 +1,60 @@
 class Todo {
-    id = Math.random();
-    @observable title;
-    @observable finished = false;
-    constructor(title) {
-        this.title = title;
-    }
+  id = Math.random();
+  @observable title;
+  @observable finished = false;
+  
+  constructor(title) {
+    this.title = title;
+  }
+
+  @action toggle() {
+    this.finished = !this.finished
+  }
 }
 
 class TodoList {
-    @observable todos = [];
-    @computed get unfinishedTodoCount() {
-        return this.todos.filter(todo => !todo.finished).length;
-    }
+  @observable todos = [];
+  @computed get unfinishedTodoCount() {
+    return this.todos.filter(
+      todo => !todo.finished
+    ).length;
+  }
 }
 
-@observer
-class TodoListView extends Component {
-    render() {
-        return <div>
-            <ul>
-                {this.props.todoList.todos.map(todo => 
-                    <TodoView todo={todo} key={todo.id} />
-                )}
-            </ul>
-            Tasks left: {this.props.todoList.unfinishedTodoCount}
-            <DevTools />
-        </div>
-    }
-}
+const TodoListView = observer(({store}) =>
+  <div>
+    <ul>
+    { store.todos.map(todo =>
+        <TodoView 
+          todo={ todo }
+          key ={ todo.id }
+        />
+    )}
+    </ul>
+    Tasks left: { store.unfinishedTodoCount }
+  </div>
+)
 
-const TodoView = observer(({todo}) => 
-    <li>
-        <input
-            type="checkbox"
-            checked={todo.finished}
-            onClick={() => todo.finished = !todo.finished}
-        />{todo.title}
-    </li>
+const TodoView = observer(({todo}) =>
+  <li>
+    <input
+      type="checkbox"
+      checked= { todo.finished }
+      onClick= {() => todo.toggle()}
+    />
+    {todo.title}
+  < /li>
 );
 
 const store = new TodoList();
 
-ReactDOM.render(<TodoListView todoList={store} />, document.getElementById('mount'));
+ReactDOM.render(
+  <TodoListView store={ store } />,
+  document.getElementById('mount')
+);
 
 store.todos.push(
-    new Todo("Get Coffee"),
-    new Todo("Write simpler code")
+  new Todo("Get Coffee"),
+  new Todo("Write simpler code")
 );
 store.todos[0].finished = true;
