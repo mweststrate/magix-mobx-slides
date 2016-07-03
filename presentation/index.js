@@ -58,11 +58,15 @@ const images = {
   escalated: require("../assets/escalated.gif"),
   fly: require("../assets/fly.gif"),
   magic: require("../assets/magic.gif"),
+  magic2: require("../assets/magic2.png"),
+  magic3: require("../assets/magic.png"),
+  nos: require("../assets/NOS.png"),
   harry: require("../assets/harry.gif"),
   harry2: require("../assets/harry2.gif"),
   robben: require("../assets/ruhrjs.jpg"),
   flow_notext: require("../assets/flow_notext.png"),
   observeall: require("../assets/observeall.jpg"),
+  thunks: require("../assets/thunks.jpg"),
   glitch: require("../assets/glitch.png"),
   
 };
@@ -79,6 +83,9 @@ const theme = createTheme({
 console.dir(theme)
 theme.screen.global.body.background = "black";
 theme.screen.global.body.color = "white";
+theme.screen.components.heading.h1.fontSize = "5rem";
+theme.screen.components.text.color = "white";
+theme.screen.components.link.color = "white";
 
 function trim(text) {
   return text.replace(/^\s*/, "").replace(/\s*$/, "");
@@ -116,9 +123,9 @@ export default class Presentation extends React.Component {
   render() {
     return (
       <Spectacle theme={theme}>
-        <Deck transition={["zoom", "slide"]} transitionDuration={500}>
+        <Deck transition={["fade"]} transitionDuration={500}>
           <Slide>
-            <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="293px"/>
+            <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="200"/>
             <Heading size={1} fit caps lineHeight={1}>
               Magic MobX
             </Heading>
@@ -126,7 +133,7 @@ export default class Presentation extends React.Component {
               Become a reactive wizard in 30 minutes
             </Heading>
             <Text textColor="white">
-              @mweststrate - Michel Weststrate
+              @mweststrate - Michel Weststrate - Mendix
             </Text>
           </Slide>
 
@@ -135,11 +142,19 @@ export default class Presentation extends React.Component {
           </Slide>
 
           <Slide>
-            <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="293px"/>
+            Mendix Demo
+          </Slide>
+
+          <Slide>
+            <Image src={images.magic3.replace("/", "")} margin="0px auto 40px" width="100%"/>
+          </Slide>
+
+
+          <Slide>
+            <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="200"/>
             <Heading size={1} fit caps lineHeight={1}>
               Magic MobX
             </Heading>
-            Tweet
             <Heading size={1} fit caps>
               What problem does Transparent Reactive Programming solve?
             </Heading>
@@ -155,8 +170,8 @@ export default class Presentation extends React.Component {
           <Slide>
             <Heading>Applications</Heading>
             <List>
-              <ListItem>Modify state</ListItem>
-              <ListItem>Transform state in something storable or viewable</ListItem>
+              <ListItem>Manage state</ListItem>
+              <ListItem>Transform state into something storable or viewable</ListItem>
             </List>
             <Fill>
                 <Code code={
@@ -167,7 +182,7 @@ var lastname  = "weststrate"
             </Fill>
           </Slide>
 
-          <Slide fill>
+          <Slide>
             <Heading>UI = view(state) ?</Heading>
             <Code code={
 `
@@ -185,7 +200,7 @@ React.render(
 `           } />
           </Slide>
 
-          <Slide align="flex-start">
+          <Slide>
             <Heading>The Problem</Heading>
             
 <Code code={
@@ -201,15 +216,11 @@ React.render(
 `           } />
           </Slide>
 
-          <Slide align="flex-start" transitionDuration={0}>
+          <Slide>
             <Heading>The Problem</Heading>
             
 <Code code={
 `
-function fullname () {
-  return "michel" + " " + "weststrate"
-}
-
 React.render(
   <div>{"michel weststrate"}</div>,
   mountNode
@@ -219,12 +230,12 @@ firstname = "Veria" // <- ehhh..?
 `           } />
             <List>
               <Appear><ListItem>Values are just copied around.</ListItem></Appear>
-              <Appear><ListItem>Connection with the 'source' is lost..</ListItem></Appear>
+              <Appear><ListItem>Connection with the source state is lost..</ListItem></Appear>
             </List>
           </Slide>
 
           <Slide align="flex-start">
-            <Heading>What we mean</Heading>
+            <Heading>What We Mean</Heading>
             <Code code={
 `
 function fullname () {
@@ -232,29 +243,19 @@ function fullname () {
 }
 
 React.render(
-  <div>{() => fullname()},
+  <div>{() => fullname()}</div>,
   mountNode
 )
 `           } />
             <List>
               <Appear><ListItem>Relations instead of copied values</ListItem></Appear>
               <Appear><ListItem>Pass thunks instead of values</ListItem></Appear>
-              <Appear><ListItem>Deferred evalutation</ListItem></Appear>
             </List>
           </Slide>
 
           <Slide>
-            Is it possible?
+            <Image src={images.thunks.replace("/", "")} margin="0px auto 40px" height="80vh"/>
           </Slide>
-
-          <Slide>            
-            Can a Dutch guy turn a German team into champions?
-          </Slide>
-
-          <Slide>
-            <Image src={images.robben.replace("/", "")} margin="0px auto 40px"/>
-          </Slide>
-
 
           <Slide align="flex-start">
             <Heading>Difficult!</Heading>
@@ -265,14 +266,14 @@ function fullname () {
 }
 
 React.render(
-  <div>{() => fullname()},
+  <div>{() => fullname()}</div>,
   mountNode
 )
 `           } />
             <List>
               <Appear><ListItem>When to re-evaluate fullname?</ListItem></Appear>
               <Appear><ListItem>When to render?</ListItem></Appear>
-              <Appear><ListItem>When to stop re-evaluating</ListItem></Appear>
+              <Appear><ListItem>When to stop re-evaluating?</ListItem></Appear>
             </List>
           </Slide>
 
@@ -281,7 +282,7 @@ React.render(
             <List>
               <Appear><ListItem>1. Make state observable</ListItem></Appear>
               <Appear><ListItem>2. Track the dependencies of thunks</ListItem></Appear>
-              <Appear><ListItem>3. Rerun thunks (only) when needed</ListItem></Appear>
+              <Appear><ListItem>3. Re-run thunks (only) when needed</ListItem></Appear>
             </List>
             <Appear>
               <Image src={images.observeall.replace("/", "")} margin="0px auto 40px"/>
@@ -291,35 +292,14 @@ React.render(
           <Slide>
             <Heading>Applications</Heading>
             <List>
-              <ListItem>Modify state</ListItem>
-              <ListItem>Transform state in something storable or viewable</ListItem>
-              <Appear><ListItem>MobX: keeps transformations consistens with modifycations
+              <ListItem>Manage state</ListItem>
+              <ListItem>Transform state into something storable or viewable</ListItem>
+              <Appear><ListItem>MobX: keeps transformations consistent with modifications
                 <List>
-<Appear><ListItem>At all times</ListItem></Appear>
-<Appear><ListItem>With the minimum amount of recomputations possible</ListItem></Appear>
+                  <Appear><ListItem padding="0 0 0 10%">At all times</ListItem></Appear>
+                  <Appear><ListItem padding="0 0 0 10%">With the minimum amount of recomputations</ListItem></Appear>
                 </List>
               
-              </ListItem></Appear>
-            </List>
-          </Slide>
-
-          <Slide align="flex-start">
-            <Heading>MobX</Heading>
-            <List>
-              <Appear><ListItem>observable: makes values observable</ListItem></Appear>
-              <Appear><ListItem>computed
-                <List>
-                  <ListItem>Tracks a thunk, runs when needed</ListItem>
-                  <ListItem>..But only when being observed</ListItem>
-                  <ListItem>Produces values</ListItem>
-                </List>
-              </ListItem></Appear>
-              <Appear><ListItem>autorun
-                <List>
-                  <ListItem>Tracks a thunk, runs when needed</ListItem>
-                  <ListItem>Reruns when needed</ListItem>
-                  <ListItem>Produces effects (aka. reactions)</ListItem>
-                </List>
               </ListItem></Appear>
             </List>
           </Slide>
@@ -345,19 +325,70 @@ firstname.set("Veria")
 `           } />
           </Slide>
 
+          <Slide align="center flex-start">
+            <Appear>
+              <Text caps textColor="white" textAlign="left" textSize="2em" >Observable</Text>
+            </Appear>
+            <Appear>
+              <List>
+                <ListItem>Makes values, objects, arrays, refs etc observable</ListItem>
+              </List>
+            </Appear>
+            <Appear>
+              <Text caps textColor="white" textAlign="left" textSize="2em" >Autorun</Text>
+            </Appear>
+            <Appear>
+              <List>
+                <ListItem>Takes a thunk, runs it when needed</ListItem>
+                <ListItem>Produces effects (aka. reactions)</ListItem>
+              </List>
+            </Appear>
+            <Appear>
+              <Text caps textColor="white" textAlign="left" textSize="2em" >Computed</Text>
+            </Appear>
+            <Appear>
+              <List>
+                <ListItem>Takes a thunk, runs it when needed</ListItem>
+                <ListItem>But only when being observed</ListItem>
+                <ListItem>Produces values</ListItem>
+              </List>
+            </Appear>
+          </Slide>
+
+          <Slide align="flex-start">
+            <Code code={
+`
+const firstname = observable("michel")
+const lastname = observable("weststrate")
+
+const fullname = computed(() => {
+  return firstname.get() + " " + lastname.get()
+})
+
+autorun(() => {
+  React.render(
+    <div>{fullname.get()}</div>,
+    mountNode
+  )
+}
+
+firstname.set("Veria")
+`           } />
+          </Slide>
+
+
           <Slide>
           <Link textColor="white" fit href="http://jsbin.com/teleferoje/1/edit?js,console,output">Demo</Link>
           </Slide>
 
           <Slide>
-            <Heading>WTF just happened?</Heading>
             <Image src={images.magic.replace("/", "")} margin="0px auto 40px"/>
             <List>
-              <ListItem>autorun thunk observes fullname</ListItem>
-              <ListItem>fullname thunk observes firstname and lastname</ListItem>
-              <ListItem>firstname changed</ListItem>
-              <ListItem>fullname recomputed</ListItem>
-              <ListItem>autorun ran again</ListItem>
+              <Appear><ListItem>autorun thunk observes fullname</ListItem></Appear>
+              <Appear><ListItem>fullname thunk observes firstname and lastname</ListItem></Appear>
+              <Appear><ListItem>firstname changed</ListItem></Appear>
+              <Appear><ListItem>fullname recomputed</ListItem></Appear>
+              <Appear><ListItem>autorun run again</ListItem></Appear>
             </List>
           </Slide>
 
@@ -366,20 +397,20 @@ firstname.set("Veria")
             lang="jsx"
             code={require("raw!../assets/pseudo.example")}
             ranges={toRanges([
-              4, 27, 7, 16, 20, 25, 28,
-              46, 30, 34, 38, 43, 36, 38, 39, 41, 42, 46,
+              4, 7, 16, 20, 25, 28,
+              30, 34, 43, 36, 38, 39, 41, 42, 46,
               47, 54, 58, 66, 69
             ])}
           />
 
           <Slide>
-            <Heading>Too magical?</Heading>
+            <Heading>TRP in MobX</Heading>
             <List>
               <Appear><ListItem>Everything runs synchronous</ListItem></Appear>
-              <Appear><ListItem>Dependency tree is analyzed</ListItem></Appear>
-              <Appear><ListItem>No, double runs, no unneeded runs, glitch free</ListItem></Appear>
               <Appear><ListItem>Dependency tree is dynamic</ListItem></Appear>
+              <Appear><ListItem>No, double runs, no unneeded runs, glitch free</ListItem></Appear>
               <Appear><ListItem>Unobserved computations are suspended</ListItem></Appear>
+              <Appear><ListItem>Generic solution. Not just UI.</ListItem></Appear>
             </List>
           </Slide>
 
@@ -396,34 +427,33 @@ autorun(() => {
     mountNode
   )
 }
-
-firstname.set(42)
 `           } />
           </Slide>
 
           <Slide>
-            https://docs.google.com/presentation/d/1d54mSxF0VOAFlsUGM8eonZDs9gZecTOz1ErSbnydChQ/edit
+            <Link href="https://docs.google.com/presentation/d/1d54mSxF0VOAFlsUGM8eonZDs9gZecTOz1ErSbnydChQ/">More slides!</Link>
           </Slide>
 
           <Slide>
-            <Heading>Mind Blown</Heading>
-            <Appear><Image src={images.harry.replace("/", "")} margin="0px auto 40px"/></Appear>
-            Magic? Just a bunch of counters and two collections
+            <Appear><Image src={images.harry.replace("/", "")} width="100%" margin="0px auto 40px"/></Appear>
+            <Appear>
+              <Text>MobX Magic?</Text>
+            </Appear>
+            <Appear>
+              <Text>Just a stack of thunks, a bunch of counters and two collections</Text>
+            </Appear>
           </Slide>
 
           <Slide>
-            Conceptual overview
-            <Image src={images.flow_notext.replace("/", "")} margin="0px auto 40px"/>
+            <Heading caps fit>
+              But it doesn't look like MobX...
+            </Heading>
           </Slide>
 
-          <Slide>
-            All cool. It just doesn't look like MobX yet.
-          </Slide>
-
-          <Slide>
+          <Slide align="flex-start">
             <Code code={
 `
-const my = observable({
+const state = observable({
   firstname: "michel",
   lastname: "weststrate",
   fullname: function() {
@@ -432,17 +462,17 @@ const my = observable({
 })
 
 React.render(
-  observer(() => <div>{my.fullname}</div>),
+  observer(() => <div>{state.fullname}</div>),
   mountNode
 )
 
-my.firstname = "Veria"
+state.firstname = "Veria"
 `           } />
           </Slide>
 
 
-          <Slide>
-            observer
+          <Slide  align="flex-start">
+            <Heading>Observer</Heading>
             <Code code={
 `
 class MyComponent extends Component {
@@ -461,10 +491,10 @@ class MyComponent extends Component {
 `           } />
           </Slide>
 
-         <Slide>
+         <Slide  align="flex-start">
             <Code code={
 `
-const my = observable({
+const state = observable({
   firstname: "michel",
   lastname: "weststrate",
   fullname: function() {
@@ -473,17 +503,17 @@ const my = observable({
 })
 
 React.render(
-  observer(() => <div>{my.fullname}</div>),
+  observer(() => <div>{state.fullname}</div>),
   mountNode
 )
 
-my.firstname = "Veria"
+state.firstname = "Veria"
 `           } />
           </Slide>
 
 
-          <Slide>
-            Object.defineProperty
+          <Slide  align="flex-start">
+            <Heading>Object Properties</Heading>
             <Code code={
 `
 function observable(object) {
@@ -503,8 +533,8 @@ function extendObservable(target, source) {
           </Slide>
 
 
-          <Slide>
-            Constructor functions
+          <Slide  align="flex-start">
+            <Heading>Constructors</Heading>
             <Code code={
 `
 function Person() {
@@ -517,19 +547,12 @@ function Person() {
   })
 )
 
-const my = new Person()
-
-React.render(
-  observer(() => <div>{my.fullname}</div>),
-  mountNode
-)
-
-my.firstname = "Veria"
+const state = new Person()
 `           } />
           </Slide>
 
           <Slide>
-            ESNext!
+            <Heading>ESNext classes</Heading>
             <Code code={
 `
 class Person {
@@ -540,19 +563,25 @@ class Person {
   }
 }
 
-const my = new Person()
-
-React.render(
-  observer(() => <div>{my.fullname}</div>),
-  mountNode
-)
-
-my.firstname = "Veria"
+const state = new Person()
 `           } />
           </Slide>
 
           <Slide>
-            Examples
+            <Appear><Heading caps fit>
+              Change Detection?
+            </Heading></Appear>
+            <Appear><Text textColor="white">No need for that. Observables simply notify observers</Text></Appear>
+            <Appear><Heading caps fit>
+              Making changes async?
+            </Heading></Appear>
+            <Appear><Text textColor="white">Works out of the box. 'cause: no change detection.</Text></Appear>
+            {/*<Appear><Heading caps fit>
+              Immutables?
+            </Heading></Appear>
+            <Appear><Text textColor="white">Not needed for perf. Fine grained changes are faster to process then coarse grained changes.</Text></Appear>
+            */}<Appear><Image src={images.fly.replace("/", "")} margin="0px auto 40px" width="100%"/></Appear>
+        
           </Slide>
 
           <CodeSlide
@@ -574,23 +603,16 @@ my.firstname = "Veria"
           />
 
           <Slide>
-            Ok, what does something real look like:
-            http://jsbin.com/wisexeqexe/edit?js,console,output
+            <Link href="http://jsbin.com/wisexeqexe/edit?js,console,output">Demo</Link>
+            <Appear><Image src={images.harry2.replace("/", "")} margin="0px auto 40px"/></Appear>
           </Slide>
 
           <Slide>
-            Mendix Demo
-          </Slide>
-
-          <Slide>
-            <Image src={images.congrats.replace("/", "")} margin="0px auto 40px"/>
-          
-            You are a wizard now! Ready to enchant your PM!
-            https://github.io/mobxjs/mobx
-            Egghead MobX fundamentals course coming soon!
-            Swag
-            @mweststrate
-
+            <Image src={images.congrats.replace("/", "")} margin="0px auto 40px" width="100%"/>
+            <Text fit>You are a wizard now! Enchant your PM</Text>
+            <Appear><Link href="https://github.io/mobxjs/mobx" fit>https://github.io/mobxjs/mobx</Link></Appear>
+            <Appear><Text>Egghead MobX fundamentals course coming soon</Text></Appear>
+            <Appear><Text>@mweststrate</Text></Appear>
           </Slide>
 
         </Deck>
@@ -599,126 +621,3 @@ my.firstname = "Veria"
   }
 }
 
-class Presentation_ extends React.Component {
-  render() {
-    return (
-      <Spectacle theme={theme}>
-        <Deck transition={["zoom", "slide"]} transitionDuration={500}>
-          <Slide transition={["zoom"]}>
-            <Heading size={1} fit caps lineHeight={1}>
-              Spectacle
-            </Heading>
-            <Heading size={1} fit caps>
-              A ReactJS Presentation Library
-            </Heading>
-            <Heading size={1} fit caps>
-              Where You Can Write Your Decks In JSX
-            </Heading>
-            <Link href="https://github.com/FormidableLabs/spectacle">
-              <Text bold caps textColor="tertiary">View on Github</Text>
-            </Link>
-            <Text textSize="1.5em" margin="20px 0px 0px" bold>Hit Your Right Arrow To Begin!</Text>
-          </Slide>
-
-          <Slide transition={["slide"]} bgColor="black" notes="You can even put notes on your slide. How awesome is that?">
-            <Image src={images.kat.replace("/", "")} margin="0px auto 40px" height="293px"/>
-            <Heading size={2} caps fit textColor="primary" textFont="primary">
-              Wait what?
-            </Heading>
-          </Slide>
-
-          <Slide transition={["zoom", "fade"]} bgColor="primary" notes="<ul><li>talk about that</li><li>and that</li></ul>">
-            <CodePane
-              lang="jsx"
-              source={require("raw!../assets/deck.example")}
-              margin="20px auto"
-            />
-          </Slide>
-          <Slide transition={["slide"]} bgImage={images.city.replace("/", "")} bgDarken={0.75}>
-            <Appear fid="1">
-              <Heading size={1} caps fit textColor="primary">
-                Full Width
-              </Heading>
-            </Appear>
-            <Appear fid="2">
-              <Heading size={1} caps fit textColor="tertiary">
-                Adjustable Darkness
-              </Heading>
-            </Appear>
-            <Appear fid="3">
-              <Heading size={1} caps fit textColor="primary">
-                Background Imagery
-              </Heading>
-            </Appear>
-          </Slide>
-          <Slide transition={["zoom", "fade"]} bgColor="primary">
-            <Heading caps fit>Flexible Layouts</Heading>
-            <Layout>
-              <Fill>
-                <Heading size={4} caps textColor="secondary" bgColor="white" margin={10}>
-                  Left
-                </Heading>
-              </Fill>
-              <Fill>
-                <Heading size={4} caps textColor="secondary" bgColor="white" margin={10}>
-                  Right
-                </Heading>
-              </Fill>
-            </Layout>
-          </Slide>
-          <Slide transition={["slide"]} bgColor="black">
-            <BlockQuote>
-              <Quote>Wonderfully formatted quotes</Quote>
-              <Cite>Ken Wheeler</Cite>
-            </BlockQuote>
-          </Slide>
-          <Slide transition={["spin", "zoom"]} bgColor="tertiary">
-            <Heading caps fit size={1} textColor="primary">
-              Inline Markdown
-            </Heading>
-            <Markdown>
-              {`
-![Markdown Logo](${images.markdown.replace("/", "")})
-
-You can write inline images, [Markdown Links](http://commonmark.org), paragraph text and most other markdown syntax
-* Lists too!
-* With ~~strikethrough~~ and _italic_
-* And lets not forget **bold**
-              `}
-            </Markdown>
-          </Slide>
-          <Slide transition={["slide", "spin"]} bgColor="primary">
-            <Heading caps fit size={1} textColor="tertiary">
-              Smooth
-            </Heading>
-            <Heading caps fit size={1} textColor="secondary">
-              Combinable Transitions
-            </Heading>
-          </Slide>
-          <Slide transition={["fade"]} bgColor="secondary" textColor="primary">
-            <List>
-              <Appear><ListItem>Inline style based theme system</ListItem></Appear>
-              <Appear><ListItem>Autofit text</ListItem></Appear>
-              <Appear><ListItem>Flexbox layout system</ListItem></Appear>
-              <Appear><ListItem>React-Router navigation</ListItem></Appear>
-              <Appear><ListItem>PDF export</ListItem></Appear>
-              <Appear><ListItem>And...</ListItem></Appear>
-            </List>
-          </Slide>
-          <Slide transition={["slide"]} bgColor="primary">
-            <Heading size={1} caps fit textColor="tertiary">
-              Your presentations are interactive
-            </Heading>
-            <Interactive/>
-          </Slide>
-          <Slide transition={["spin", "slide"]} bgColor="tertiary">
-            <Heading size={1} caps fit lineHeight={1.5} textColor="primary">
-              Made with love in Seattle by
-            </Heading>
-            <Link href="http://www.formidablelabs.com"><Image width="100%" src={images.logo}/></Link>
-          </Slide>
-        </Deck>
-      </Spectacle>
-    );
-  }
-}

@@ -43,7 +43,7 @@ const TodoView = observer(({todo}) =>
       onClick= {() => todo.toggle()}
     />
     {todo.title}
-  < /li>
+  </li>
 );
 
 const store = new TodoList();

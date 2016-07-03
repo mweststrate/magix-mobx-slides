@@ -67,3 +67,4 @@ autorun(() => {
 
 firstname.set("Veria")
 lastname.set("& Noa")
+// Demo!
