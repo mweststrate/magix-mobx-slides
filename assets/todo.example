@@ -7,13 +7,13 @@ class Todo {
     this.title = title;
   }
 
-  @action toggle() {
+  toggle() {
     this.finished = !this.finished
   }
 }
-
 class TodoList {
   @observable todos = [];
+
   @computed get unfinishedTodoCount() {
     return this.todos.filter(
       todo => !todo.finished

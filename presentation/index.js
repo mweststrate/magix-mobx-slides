@@ -57,7 +57,7 @@ const images = {
   congrats: require("../assets/congrats.gif"),
   escalated: require("../assets/escalated.gif"),
   fly: require("../assets/fly.gif"),
-  magic: require("../assets/magic.gif"),
+  magic: require("../assets/tada.gif"),
   magic2: require("../assets/magic2.png"),
   magic3: require("../assets/magic.png"),
   nos: require("../assets/NOS.png"),
@@ -141,14 +141,35 @@ export default class Presentation extends React.Component {
             <Image src={images.escalated.replace("/", "")} margin="0px auto 40px" width="100%"/>
           </Slide>
 
+          <CodeSlide
+            transition={[]}
+            lang="jsx"
+            code={require("raw!../assets/todo.example")}
+            ranges={toRanges([
+              13,
+              23,
+              36,
+              26,
+              32,
+              37,
+              47,
+              49,
+              54,
+              60
+            ])}
+          />
+
+          <Slide>
+            <Link href="http://jsbin.com/wisexeqexe/edit?js,console,output">Demo</Link>
+          </Slide>
+
           <Slide>
             Mendix Demo
           </Slide>
 
           <Slide>
-            <Image src={images.magic3.replace("/", "")} margin="0px auto 40px" width="100%"/>
+            <Appear><Image src={images.magic3.replace("/", "")} margin="0px auto 40px" width="100%"/></Appear>
           </Slide>
-
 
           <Slide>
             <Image src={images.mobx.replace("/", "")} margin="0px auto 40px" height="200"/>
@@ -382,7 +403,7 @@ firstname.set("Veria")
           </Slide>
 
           <Slide>
-            <Image src={images.magic.replace("/", "")} margin="0px auto 40px"/>
+            <Image src={images.magic.replace("/", "")} margin="0px auto 40px" width="30vh"/>
             <List>
               <Appear><ListItem>autorun thunk observes fullname</ListItem></Appear>
               <Appear><ListItem>fullname thunk observes firstname and lastname</ListItem></Appear>
@@ -576,36 +597,19 @@ const state = new Person()
               Making changes async?
             </Heading></Appear>
             <Appear><Text textColor="white">Works out of the box. 'cause: no change detection.</Text></Appear>
-            {/*<Appear><Heading caps fit>
-              Immutables?
-            </Heading></Appear>
-            <Appear><Text textColor="white">Not needed for perf. Fine grained changes are faster to process then coarse grained changes.</Text></Appear>
-            */}<Appear><Image src={images.fly.replace("/", "")} margin="0px auto 40px" width="100%"/></Appear>
+            <Appear><Image src={images.fly.replace("/", "")} margin="0px auto 40px" width="100%"/></Appear>
         
           </Slide>
 
-          <CodeSlide
-            transition={[]}
-            lang="jsx"
-            code={require("raw!../assets/todo.example")}
-            ranges={toRanges([
-              13,
-              23,
-              36,
-              26,
-              32,
-              37,
-              47,
-              49,
-              54,
-              60
-            ])}
-          />
-
           <Slide>
-            <Link href="http://jsbin.com/wisexeqexe/edit?js,console,output">Demo</Link>
+            <Appear><Heading caps fit>
+              Immutables?
+            </Heading></Appear>
+            <Appear><Text textColor="white">Perf wise: Mutable &lt; Immutable &lt; Observables</Text></Appear>
+            <Appear><Text textColor="white">MobX implements shouldComponentUpdate using pointer equality (PureRenderMixin)</Text></Appear>
             <Appear><Image src={images.harry2.replace("/", "")} margin="0px auto 40px"/></Appear>
           </Slide>
+
 
           <Slide>
             <Image src={images.congrats.replace("/", "")} margin="0px auto 40px" width="100%"/>
